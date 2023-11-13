@@ -11,6 +11,7 @@ import { SignalPug } from "../../../models/SignalPug";
 import SignalPugRepository from "../../../repository/SignalPugRepository";
 import moment from "moment";
 import { SignalReason } from "../../../models/SignalReason";
+
 export const signalPug = async (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(" ")[1] || "";

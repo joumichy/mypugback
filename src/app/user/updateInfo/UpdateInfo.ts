@@ -41,7 +41,6 @@ const execute = async (
 
   checkThatUserExistsOrThrow(currentUser);
 
-  await PugRepository.updateUserInfo(currentUser, profilePicture);
   const followings = await FollowerRepository.findAllFollowingFromUser(
     currentUser.username
   );
@@ -52,20 +51,24 @@ const execute = async (
   const usernamesFollowers: string[] = [];
   followings.forEach((value) => usernamesFollowings.push(value.username));
   followers.forEach((value) => usernamesFollowers.push(value.username));
-  await FollowerRepository.updateUserInfoFollowing(
-    usernamesFollowings,
-    currentUser.username,
-    profilePicture
-  );
-  await FollowerRepository.updateUserInfoFollowers(
-    usernamesFollowers,
-    currentUser.username,
-    profilePicture
-  );
-  await ConversationRepository.updateUserInfo(
-    currentUser.username,
-    profilePicture
-  );
+
+  await Promise.all([
+    FollowerRepository.updateUserInfoFollowing(
+      usernamesFollowings,
+      currentUser.username,
+      profilePicture
+    ),
+    await FollowerRepository.updateUserInfoFollowers(
+      usernamesFollowers,
+      currentUser.username,
+      profilePicture
+    ),
+    await ConversationRepository.updateUserInfo(
+      currentUser.username,
+      profilePicture
+    ),
+    await PugRepository.updateUserInfo(currentUser, profilePicture),
+  ]);
   const result = await UserRepository.updateUserInfo(
     currentUser,
     description,

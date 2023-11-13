@@ -14,6 +14,7 @@ import { signalUser } from "../app/user/signal/SignalUser";
 import { deblockUser } from "../app/user/deblock/DeblockUser";
 import { getUsersBlocked } from "../app/user/findBlocked/GetBlocked";
 import { updateInfoUser } from "../app/user/updateInfo/UpdateInfo";
+import { createPayment } from "../app/payment/Payment";
 
 const userRouter = Router();
 
@@ -33,6 +34,7 @@ const getfollowing = "/following";
 const followPath = "/follow";
 const unfollowPath = "/unfollow";
 const signalPath = "/signal";
+const createPaymentPath = "/createpayment";
 
 userRouter.post(signUpPath, signUp);
 userRouter.post(signInPath, signIn);
@@ -50,5 +52,6 @@ userRouter.get(blockedPath, getUsersBlocked);
 userRouter.put(unfollowPath, unFollowUser);
 userRouter.post(signalPath, signalUser);
 userRouter.put(updateInfoPath, updateInfoUser);
+userRouter.post(createPaymentPath, createPayment);
 
 export default userRouter;

@@ -7,10 +7,7 @@ import UserRepository from "../../../repository/UserRepository";
 import { CustomError } from "../../../util/error/CustomError";
 import { decodeToken } from "../../../util/security/tokenManagement";
 import FollowerRepository from "../../../repository/FollowerRepository";
-import {
-  usersToUsersFactoryResponse,
-  userToUserFactoryResponse,
-} from "../../../response/UserFactoryResponse";
+import { userToUserFactoryResponse } from "../../../response/UserFactoryResponse";
 
 export const deblockUser = async (req: Request, res: Response) => {
   try {

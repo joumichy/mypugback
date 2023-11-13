@@ -29,44 +29,6 @@ const unlike = "/unlike";
 const comment = "/comment";
 const signalPath = "/signal";
 
-const multer = require("multer");
-const storage = multer.diskStorage({
-  destination: (
-    req: any,
-    file: any,
-    callback: (arg0: null, arg1: string) => void
-  ) => {
-    callback(null, "./uploads");
-  },
-  filename: (req: any, file: any, callback: any) => {
-    const date = new Date()
-      .toISOString()
-      .replace(":", "-")
-      .replace(":", "-")
-      .replace(".", "-");
-    const name = date + file.originalname + ".png";
-    callback(null, name);
-  },
-});
-const fileFilter = (req: any, file: any, cb: any) => {
-  if (
-    file.mimetype === "image/jpeg" ||
-    file.mimetype === "image/png " ||
-    file.mimetype === "image/jpg"
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-const upload = multer({
-  dest: "uploads/",
-  storage,
-  limits: {
-    fileSize: 1024 * 1024 * 5,
-  },
-});
-
 pugRouter.post(add, addPug);
 pugRouter.get(get, getPug);
 pugRouter.get(getAll, getAllPugs);

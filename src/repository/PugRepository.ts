@@ -107,6 +107,7 @@ export default class PugRepository {
         $project: {
           _id: 1,
           pug: 1,
+          profilePicture: 1,
           numberOfComments: {
             $cond: {
               if: { $isArray: "$pug.comments" },

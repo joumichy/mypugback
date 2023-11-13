@@ -44,20 +44,35 @@ const getAllPugsFromFollowing = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.getAllPugsFromFollowing = getAllPugsFromFollowing;
-const execute = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const execute = (userId) =>
+  __awaiter(void 0, void 0, void 0, function* () {
     const currentUser = yield UserRepository_1.default.findById(userId);
+    const blockedList =
+      yield FollowerRepository_1.default.findAllBlockedFromUser(
+        currentUser.username
+      );
     (0, checkdata_1.checkThatUserExistsOrThrow)(currentUser);
-    const data = yield FollowerRepository_1.default.findAllFollowingFromUser(currentUser.username);
+    const data = yield FollowerRepository_1.default.findAllFollowingFromUser(
+      currentUser.username
+    );
     const usernames = [];
     data.forEach((value) => usernames.push(value.username));
-    const result = yield PugRepository_1.default.getAllPugsFromFollowing(usernames);
+    const result = yield PugRepository_1.default.getAllPugsFromFollowing(
+      usernames
+    );
     const pugsResponse = [];
     result.forEach((value) => {
-        if (value.pugs) {
-            value.pugs.forEach((elem) => {
-                pugsResponse.push((0, PugResponse_1.pugToResponse)(elem, currentUser.username, value.username));
-            });
-        }
+      if (value.pugs && !blockedList.includes(value.username)) {
+        value.pugs.forEach((elem) => {
+          pugsResponse.push(
+            (0, PugResponse_1.pugToResponse)(
+              elem,
+              currentUser.username,
+              value.username
+            )
+          );
+        });
+      }
     });
     return pugsResponse;
-});
+  });

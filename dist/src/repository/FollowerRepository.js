@@ -84,15 +84,17 @@ class FollowerRepository {
             }
             const call = db_1.db.get(collectionName);
             return yield call.findOneAndUpdate({ username: user.username }, {
-                $push: { followers: follower },
+                $push: {followers: {username: follower.username}},
             });
         });
     }
     static deleteUserFromFollowing(user, follower) {
         return __awaiter(this, void 0, void 0, function* () {
             const call = db_1.db.get(collectionName);
-            return yield call.findOneAndUpdate({ username: user.username }, {
-                $pull: { following: follower },
+            return yield call.findOneAndUpdate({username: user.username}, {
+                $pull: {following: {username: follower.username}},
+            }, {
+                projection: {following: 1},
             });
         });
     }
@@ -106,10 +108,16 @@ class FollowerRepository {
     }
     static deleteUserFromFollower(user, follower) {
         return __awaiter(this, void 0, void 0, function* () {
-            const call = db_1.db.get(collectionName);
-            return yield call.findOneAndUpdate({ username: user.username }, {
-                $pull: { followers: follower },
-            });
+          const call = db_1.db.get(collectionName);
+          return yield call.findOneAndUpdate(
+            { username: user.username },
+            {
+              $pull: { followers: follower },
+            },
+            {
+              projection: { followers: 1 },
+            }
+          );
         });
     }
     static updateUserInfoFollowing(usernames, currentUsername, profilePicture) {
@@ -167,6 +175,7 @@ class FollowerRepository {
             });
         });
     }
+
     static findUserInBlockingList(username, user) {
         return __awaiter(this, void 0, void 0, function* () {
             const call = db_1.db.get(collectionName);
@@ -174,8 +183,15 @@ class FollowerRepository {
                 username,
                 "blocked.username": user,
             }, {
-                projection: { following: { $elemMatch: { username: user } } },
+                projection: {blocked: {$elemMatch: {username: user}}},
             });
+        });
+    }
+
+    static deleteUser(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const call = db_1.db.get(collectionName);
+            return yield call.remove({username: user.username});
         });
     }
 }

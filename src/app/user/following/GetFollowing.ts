@@ -45,6 +45,14 @@ const execute = async (
   const result = await FollowerRepository.findAllFollowingFromUser(
     otherUser.username
   );
-
+  //TODO : Update for profile picutre optimisation
+  // let usernames = result.map((value) => value.username);
+  // const data = await UserRepository.findUsersInList(usernames);
+  // result.forEach(
+  //   (value) =>
+  //     (value.profilePicture = data.find(
+  //       (value1) => value1.username == value.username
+  //     )!.profilePicture)
+  // );
   return followersToResponse(result);
 };

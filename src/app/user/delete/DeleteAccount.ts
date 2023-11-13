@@ -4,6 +4,7 @@ import UserRepository from "../../../repository/UserRepository";
 import { CustomError } from "../../../util/error/CustomError";
 import { decodeToken } from "../../../util/security/tokenManagement";
 import PugRepository from "../../../repository/PugRepository";
+import FollowerRepository from "../../../repository/FollowerRepository";
 
 export const deleteAccount = async (req: Request, res: Response) => {
   try {
@@ -26,8 +27,8 @@ export const deleteAccount = async (req: Request, res: Response) => {
 const execute = async (userId: string): Promise<any> => {
   const currentUser = await UserRepository.findById(userId);
   checkThatUserExistsOrThrow(currentUser);
-
   await PugRepository.detePugsFromUser(currentUser);
+  await FollowerRepository.deleteUser(currentUser);
   await UserRepository.deleteUser(currentUser);
 
   return {

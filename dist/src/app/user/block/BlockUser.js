@@ -41,25 +41,73 @@ const blockUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.blockUser = blockUser;
-const execute = (userId, username) => __awaiter(void 0, void 0, void 0, function* () {
+const execute = (userId, username) =>
+  __awaiter(void 0, void 0, void 0, function* () {
     const currentUser = yield UserRepository_1.default.findById(userId);
     const otherUser = yield UserRepository_1.default.findByUsername(username);
     (0, checkdata_1.checkThatUserExistsOrThrow)(currentUser);
     (0, checkdata_1.checkThatUserExistsOrThrow)(otherUser);
     (0, checkdata_1.checkThatUserisntHimself)(currentUser, otherUser);
-    const userAlreadyBlocked = yield FollowerRepository_1.default.findUserInBlockingList(currentUser.username, otherUser.username);
+    const userAlreadyBlocked =
+      yield FollowerRepository_1.default.findUserInBlockingList(
+        currentUser.username,
+        otherUser.username
+      );
     (0, checkdata_1.checkThatUserIsNotAlreadyBlocked)(userAlreadyBlocked);
-    yield FollowerRepository_1.default.addUserToBlocking(currentUser, (0, UserFactoryResponse_1.userToUserFactoryResponse)(otherUser));
-    const follower = yield FollowerRepository_1.default.deleteUserFromFollower(currentUser, (0, UserFactoryResponse_1.userToUserFactoryResponse)(otherUser));
-    const following = yield FollowerRepository_1.default.deleteUserFromFollowing(currentUser, (0, UserFactoryResponse_1.userToUserFactoryResponse)(otherUser));
-    if (follower) {
-        yield UserRepository_1.default.updateUserFollower(otherUser, -1);
+    yield FollowerRepository_1.default.addUserToBlocking(
+      currentUser,
+      (0, UserFactoryResponse_1.userToUserFactoryResponse)(otherUser)
+    );
+    //Deleting current user's following
+    const following =
+      yield FollowerRepository_1.default.deleteUserFromFollowing(
+        currentUser,
+        (0, UserFactoryResponse_1.userToUserFactoryResponse)(otherUser)
+      );
+    console.log("Bloquer :", following);
+    //Deleting the name of current user in the blocked user's followers
+    const follower = yield FollowerRepository_1.default.deleteUserFromFollower(
+      otherUser,
+      (0, UserFactoryResponse_1.userToUserFactoryResponse)(currentUser)
+    );
+    //Deleting blocked user's following current user
+    const userFollowing =
+      yield FollowerRepository_1.default.deleteUserFromFollowing(
+        otherUser,
+        (0, UserFactoryResponse_1.userToUserFactoryResponse)(currentUser)
+      );
+    //Deleting user blocked from current user's followed list
+    const userFollower =
+      yield FollowerRepository_1.default.deleteUserFromFollower(
+        currentUser,
+        (0, UserFactoryResponse_1.userToUserFactoryResponse)(otherUser)
+      );
+    if (
+      following.following.find((elem) => elem.username == otherUser.username)
+    ) {
+      yield UserRepository_1.default.updateUserFollowing(currentUser, -1);
     }
-    if (following) {
-        yield UserRepository_1.default.updateUserFollowing(currentUser, -1);
+    if (
+      follower.followers.find((elem) => elem.username == otherUser.username)
+    ) {
+      yield UserRepository_1.default.updateUserFollower(otherUser, -1);
+    }
+    if (
+      userFollowing.following.find(
+        (elem) => elem.username == currentUser.username
+      )
+    ) {
+      yield UserRepository_1.default.updateUserFollowing(otherUser, -1);
+    }
+    if (
+      userFollower.followers.find(
+        (elem) => elem.username == currentUser.username
+      )
+    ) {
+      yield UserRepository_1.default.updateUserFollower(currentUser, -1);
     }
     return {
-        code: 0,
-        message: "Utilisateur blocké",
+      code: 0,
+      message: "Utilisateur bloqué",
     };
-});
+  });

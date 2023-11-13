@@ -13,6 +13,8 @@ import { Pug } from "../../../models/Pug";
 import { Comment } from "../../../models/Comment";
 import { ObjectId } from "bson";
 import { userToUserFactoryResponse } from "../../../response/UserFactoryResponse";
+import { allUsersNotificationToken } from "../../../util/util";
+import { sendNotificationEvent } from "../../../notification/Notification";
 
 export const commentPug = async (req: Request, res: Response) => {
   try {
@@ -56,6 +58,16 @@ const execute = async (
     id: new ObjectId(),
   };
   await PugRepository.commentUserPug(comment, pug, pugName);
+  if (allUsersNotificationToken.has(pugName)) {
+    await sendNotificationEvent(
+      allUsersNotificationToken.get(pugName),
+      userToUserFactoryResponse(currentUser),
+      "comment",
+      pugId,
+      pugName,
+      pug.imageDescription
+    );
+  }
 
-  return { code: 0, message: "Nouveau commentaire ajotué", payload: "" };
+  return { code: 0, message: "Nouveau commentaire ajouté", payload: "" };
 };

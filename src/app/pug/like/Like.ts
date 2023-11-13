@@ -9,6 +9,9 @@ import { CustomError } from "../../../util/error/CustomError";
 import { decodeToken } from "../../../util/security/tokenManagement";
 import PugRepository from "../../../repository/PugRepository";
 import { Pug } from "../../../models/Pug";
+import { allUsersNotificationToken } from "../../../util/util";
+import { sendNotificationEvent } from "../../../notification/Notification";
+import { userToUserFactoryResponse } from "../../../response/UserFactoryResponse";
 
 export const likePug = async (req: Request, res: Response) => {
   try {
@@ -49,11 +52,17 @@ const execute = async (
     pug,
     username
   );
-  console.log(test);
 
   checkThatUserNotAlreadyLike(test);
 
   await PugRepository.likeUserPug(currentUser, pug, username);
+  if (allUsersNotificationToken.has(username)) {
+    await sendNotificationEvent(
+      allUsersNotificationToken.get(username),
+      userToUserFactoryResponse(currentUser),
+      "like"
+    );
+  }
 
   return { code: 0, message: "Nouveau pug like", payload: "" };
 };

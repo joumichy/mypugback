@@ -10,4 +10,6 @@ export interface User extends UserFactory {
   pugs: number;
   banned: boolean;
   description: string;
+  sex: "man" | "woman";
+  trophy: boolean;
 }

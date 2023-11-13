@@ -1,16 +1,12 @@
 import { Request, Response } from "express";
 import {
   checkThatUserExistsOrThrow,
-  checkThatUserIsNotAlreadyFollow,
   checkThatUserNotFollowed,
-  checkThatUserSignUpCredentialsOrThrow,
 } from "../../../util/validator/checkdata";
 import UserRepository from "../../../repository/UserRepository";
 import { CustomError } from "../../../util/error/CustomError";
 import { decodeToken } from "../../../util/security/tokenManagement";
 import FollowerRepository from "../../../repository/FollowerRepository";
-import { ObjectId } from "bson";
-import { UserFactory } from "../../../models/UserFactory";
 import { userToUserFactoryResponse } from "../../../response/UserFactoryResponse";
 
 export const unFollowUser = async (req: Request, res: Response) => {
@@ -43,20 +39,23 @@ const execute = async (userId: string, username: string): Promise<any> => {
     currentUser.username,
     otherUser.username
   );
+  console.log("data :" + userNotFollow);
   checkThatUserNotFollowed(userNotFollow);
 
-  await FollowerRepository.deleteUserFromFollowing(
+  const resultFollowing = await FollowerRepository.deleteUserFromFollowing(
     currentUser,
     userToUserFactoryResponse(otherUser)
   );
-  await FollowerRepository.deleteUserFromFollower(
+  if (resultFollowing) {
+    await UserRepository.updateUserFollowing(currentUser, -1);
+  }
+  const resultFollower = await FollowerRepository.deleteUserFromFollower(
     otherUser,
     userToUserFactoryResponse(currentUser)
   );
-
-  await UserRepository.updateUserFollowing(currentUser, -1);
-  await UserRepository.updateUserFollower(otherUser, -1);
-
+  if (resultFollower) {
+    await UserRepository.updateUserFollower(otherUser, -1);
+  }
   return {
     code: 0,
     message: "Nouvel utilisateur unfollow",

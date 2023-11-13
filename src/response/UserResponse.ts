@@ -17,6 +17,8 @@ export function userToUserResponse(user: User): UserResponse {
     pugs: user.pugs,
     banned: user.banned ?? false,
     description: user.description ?? "",
+    sex: user.sex ?? "man",
+    trophy: user.trophy ?? false,
   };
 }
 
@@ -34,5 +36,7 @@ export function userToResponseProfile(user: User, data: any): UserResponse {
     isFollowing: !!data,
     banned: user.banned ?? false,
     description: user.description ?? "",
+    sex: user.sex ?? "man",
+    trophy: user.trophy ?? false,
   };
 }

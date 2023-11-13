@@ -9,6 +9,7 @@ import { CustomError } from "../../../util/error/CustomError";
 import { decodeToken } from "../../../util/security/tokenManagement";
 import PugRepository from "../../../repository/PugRepository";
 import { successCode } from "../../../util/util";
+import { Comment } from "../../../models/Comment";
 
 export const getComments = async (req: Request, res: Response) => {
   try {
@@ -41,5 +42,15 @@ const execute = async (
   checkThatUserExistsOrThrow(currentUser);
   const result = await PugRepository.findByIdWithCommentsOnly(pugId, pugName);
   checkThatCommentsExistOrThrow(result.pugs[0].comments);
-  return result.pugs[0].comments;
+  const comments: Comment[] = result.pugs[0].comments;
+  const users: string[] = [];
+  comments.forEach((value) => users.push(value.author.username));
+  const usersWithPicture = await UserRepository.findUsersInList(users);
+  comments.forEach(
+    (value) =>
+      (value.author.profilePicture = usersWithPicture.find(
+        (user) => user.username == value.author.username
+      )!.profilePicture)
+  );
+  return comments;
 };

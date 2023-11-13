@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import {
   checkThatUserDoesntExistOrThrow,
   checkThatUserSignUpCredentialsOrThrow,
-  checkThatUserWithPhoneNumberDoesntExistOrThrow,
   checkThatUserWithUsernameDoesntExistOrThrow,
 } from "../../../util/validator/checkdata";
 import { User } from "../../../models/User";
@@ -12,13 +11,14 @@ import { CustomError } from "../../../util/error/CustomError";
 import { generateAccessToken } from "../../../util/security/tokenManagement";
 import { userToUserResponse } from "../../../response/UserResponse";
 import { executeAddFriend } from "../../user/follow/Follow";
+import { LUCIE } from "../../../util/util";
 
 export const signUp = async (req: Request, res: Response) => {
-  const { email, username, phoneNumber, password } = req.body;
+  const { email, username, password, phoneRegion, sex } = req.body;
 
   try {
-    const user = await signUpUser(email, username, password, phoneNumber);
-    await executeAddFriend(String(user._id), "lucie");
+    const user = await signUpUser(email, username, password, phoneRegion, sex);
+    await executeAddFriend(String(user._id), LUCIE);
 
     res.status(201).json({
       code: 0,
@@ -39,22 +39,18 @@ const signUpUser = async (
   email: string,
   username: string,
   password: string,
-  phoneNumber: string
+  phoneRegion: string,
+  sex: "man" | "woman"
 ): Promise<User> => {
-  console.log(phoneNumber);
-  checkThatUserSignUpCredentialsOrThrow(email, password, phoneNumber, username);
+  checkThatUserSignUpCredentialsOrThrow(email, password, username, phoneRegion);
 
   const existingUser = await UserRepository.findByEmail(email);
   const existingUserWithUserName = await UserRepository.findByUsername(
     username
   );
-  const existingUserWithPhoneNumber = await UserRepository.findByPhoneNumber(
-    phoneNumber
-  );
 
   checkThatUserDoesntExistOrThrow(existingUser);
   checkThatUserWithUsernameDoesntExistOrThrow(existingUserWithUserName);
-  checkThatUserWithPhoneNumberDoesntExistOrThrow(existingUserWithPhoneNumber);
 
   const hashedPassword = await encodePassword(password);
   const newUser: User = {
@@ -62,13 +58,15 @@ const signUpUser = async (
     admin: false,
     email,
     password: hashedPassword,
-    phoneNumber,
+    phoneNumber: "",
     username,
     followers: 0,
     following: 0,
     pugs: 0,
     description: "",
     banned: false,
+    trophy: false,
+    sex,
   };
 
   return await UserRepository.insert(newUser);

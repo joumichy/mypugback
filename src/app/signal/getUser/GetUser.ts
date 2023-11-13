@@ -5,11 +5,6 @@ import UserRepository from "../../../repository/UserRepository";
 import { CustomError } from "../../../util/error/CustomError";
 import { decodeToken } from "../../../util/security/tokenManagement";
 import { successCode } from "../../../util/util";
-import FollowerRepository from "../../../repository/FollowerRepository";
-import {
-  FollowerResponse,
-  followersToResponse,
-} from "../../../response/FollowerResponse";
 import SignalUserRepository from "../../../repository/SignalRepository";
 import {
   SignalResponse,

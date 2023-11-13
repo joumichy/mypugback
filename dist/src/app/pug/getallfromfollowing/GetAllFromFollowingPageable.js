@@ -45,20 +45,38 @@ const getAllPugsFromFollowingPagealble = (req, res) => __awaiter(void 0, void 0,
     }
 });
 exports.getAllPugsFromFollowingPagealble = getAllPugsFromFollowingPagealble;
-const execute = (userId, startInd) => __awaiter(void 0, void 0, void 0, function* () {
+const execute = (userId, startInd) =>
+  __awaiter(void 0, void 0, void 0, function* () {
     const currentUser = yield UserRepository_1.default.findById(userId);
+    const blockedList =
+      yield FollowerRepository_1.default.findAllBlockedFromUser(
+        currentUser.username
+      );
     (0, checkdata_1.checkThatUserExistsOrThrow)(currentUser);
-    const data = yield FollowerRepository_1.default.findAllFollowingFromUser(currentUser.username);
+    const data = yield FollowerRepository_1.default.findAllFollowingFromUser(
+      currentUser.username
+    );
     const usernames = [];
     data.forEach((value) => usernames.push(value.username));
-    const result = yield PugRepository_1.default.getAllPugsFromFollowingPageable(usernames, startInd);
+    const result =
+      yield PugRepository_1.default.getAllPugsFromFollowingPageable(
+        usernames,
+        startInd
+      );
     const pugsResponse = [];
     result.forEach((elem) => {
-        pugsResponse.push((0, PugResponse_1.pugToResponsePageableSorted)(elem.pug, currentUser, {
-            _id: elem.userId,
-            username: elem._id,
-            profilePicture: elem.profilePicture,
-        }));
+      if (!blockedList.find((value) => value.username == elem._id))
+        pugsResponse.push(
+          (0, PugResponse_1.pugToResponsePageableSorted)(
+            elem.pug,
+            currentUser,
+            {
+              _id: elem.userId,
+              username: elem._id,
+              profilePicture: elem.profilePicture,
+            }
+          )
+        );
     });
     return pugsResponse;
-});
+  });

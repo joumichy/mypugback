@@ -44,6 +44,15 @@ export default class UserRepository {
     });
   }
 
+  static async findUsersInList(usernames: string[]): Promise<User[]> {
+    const call = db.get(collectionName);
+
+    return await call.find(
+      { username: { $in: usernames } },
+      { projection: { username: 1, profilePicture: 1 } }
+    );
+  }
+
   static async updateUserPug(user: User, numberOfPug: number): Promise<User> {
     const call = db.get(collectionName);
     return await call.findOneAndUpdate(
@@ -73,6 +82,7 @@ export default class UserRepository {
       }
     );
   }
+
   static async banUser(user: User, isBanned: boolean): Promise<User> {
     const call = db.get(collectionName);
     return await call.findOneAndUpdate(
@@ -82,6 +92,7 @@ export default class UserRepository {
       }
     );
   }
+
   static async updateUserInfo(
     user: User,
     description: string,

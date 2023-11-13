@@ -4,6 +4,6 @@ export interface UserPugNoComment {
   _id: string;
   numberOfComments: number;
   userId: string;
-  prorilePicture: string;
+  profilePicture: string;
   pug: Pug;
 }

@@ -1,5 +1,4 @@
 import { SignalFactory } from "../models/SignalFactory";
-import { followerToResponse } from "./FollowerResponse";
 
 export interface SignalResponse extends SignalFactory {}
 

@@ -1,6 +1,4 @@
 import { SignalPug } from "../models/SignalPug";
-import { SignalFactory } from "../models/SignalFactory";
-import { SignalResponse } from "./SignalResponse";
 
 export interface SignalPugResponse extends SignalPug {}
 

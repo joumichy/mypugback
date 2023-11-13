@@ -14,6 +14,7 @@ import {
   pugToResponsePageableSorted,
 } from "../../../response/PugResponse";
 import { userToUserFactoryResponse } from "../../../response/UserFactoryResponse";
+import FollowerRepository from "../../../repository/FollowerRepository";
 
 export const getAllPugsUsersPageable = async (req: Request, res: Response) => {
   try {
@@ -47,22 +48,27 @@ const execute = async (
   endInd: number
 ): Promise<any> => {
   const currentUser = await UserRepository.findById(userId);
+  const blockedList = await FollowerRepository.findAllBlockedFromUser(
+    currentUser.username
+  );
   checkThatUserExistsOrThrow(currentUser);
   await checkThatUserIsNotBanned(currentUser);
   const result = await PugRepository.getAllPugs(startInd, endInd);
   const pugsResponse: PugResponse[] = [];
+
   result.forEach((elem: any) => {
-    pugsResponse.push(
-      pugToResponsePageableSorted(
-        elem.pug,
-        userToUserFactoryResponse(currentUser),
-        {
-          _id: elem.userId,
-          username: elem._id,
-          profilePicture: elem.profilePicture,
-        }
-      )
-    );
+    if (!blockedList.find((value) => value.username == elem._id))
+      pugsResponse.push(
+        pugToResponsePageableSorted(
+          elem.pug,
+          userToUserFactoryResponse(currentUser),
+          {
+            _id: elem.userId,
+            username: elem._id,
+            profilePicture: elem.profilePicture,
+          }
+        )
+      );
   });
   return pugsResponse;
 };

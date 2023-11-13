@@ -45,7 +45,11 @@ const signInUser = (username, password) => __awaiter(void 0, void 0, void 0, fun
     (0, checkdata_1.checkThatUserSignInCredentialsOrThrow)(username, password);
     const existingUser = yield UserRepository_1.default.findByUsername(username);
     yield (0, checkdata_1.checkThatUserExistsOrThrow)(existingUser);
-    yield (0, checkdata_1.checkThatPasswordsAreEqualsOrThrow)(password, existingUser.password);
-    yield (0, checkdata_1.checkThatUserIsNotBanned)(existingUser);
+    yield(0, checkdata_1.checkThatPasswordsAreEqualsOrThrow)(
+      password,
+      existingUser.password
+    );
+    yield(0, checkdata_1.checkThatUserIsNotBanned)(existingUser);
+    console.log(existingUser);
     return existingUser;
 });

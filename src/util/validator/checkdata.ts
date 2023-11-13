@@ -1,15 +1,21 @@
 import {
+  accountAlreadyBlocked,
   accountAlreadyExist,
   accountAlreadyExistWithPhoneNumber,
   accountAlreadyExistWithUsername,
-  accountAlreadyBlocked,
+  accountAlreadyFollow,
+  accountBanned,
+  accountBlocked,
   accountDoesntExist,
   accountIsHimself,
   accountNotAllowed,
   accountNotConnected,
   accountNotFollowed,
   alreadyLiked,
+  bannedCode,
+  blockedCode,
   commentNotFound,
+  competitionDoesntExist,
   conversationDoesntExist,
   conversationsDoesntExist,
   emailInvalid,
@@ -19,19 +25,13 @@ import {
   lucie,
   notAlreadyliked,
   passwordInvalid,
-  phoneNumberInvalid,
   pugDoesntExist,
   pugsDoesntExist,
+  sameUser,
   usernameInvalid,
   usernameIsLucie,
   wrongPassword,
-  accountAlreadyFollow,
-  bannedCode,
-  accountBanned,
-  accountBlocked,
-  blockedCode,
 } from "../util";
-var awPhoneNumber = require("awesome-phonenumber");
 import * as EmailValidator from "email-validator";
 import { CustomError } from "../error/CustomError";
 import { isSame } from "../security/passwordManagement";
@@ -41,28 +41,28 @@ import { Pug } from "../../models/Pug";
 import { UserPug } from "../../models/UserPug";
 import { SignalFactory } from "../../models/SignalFactory";
 import { UserFactory } from "../../models/UserFactory";
+import { Competition } from "../../models/Competition";
 
 export function checkThatUserSignUpCredentialsOrThrow(
   email: string,
   password: string,
-  phoneNumber: string,
-  username: string
+  username: string,
+  phoneRegion: string
 ) {
-  const pn = new awPhoneNumber(phoneNumber, "SE");
+  // const pn = parsePhoneNumber(phoneNumber, { regionCode: phoneRegion });
   if (!email || email == "" || !EmailValidator.validate(email)) {
     throw new CustomError(errorCode, emailInvalid, {});
   }
 
-  if (!password || password == "") {
+  if (!password || password == "" || password.length < 7) {
     throw new CustomError(errorCode, passwordInvalid, {});
   }
   if (!username || username == "") {
     throw new CustomError(errorCode, usernameInvalid, {});
   }
-
-  if (!pn.isValid()) {
-    throw new CustomError(errorCode, phoneNumberInvalid, {});
-  }
+  // if (!pn.valid) {
+  //   throw new CustomError(errorCode, phoneNumberInvalid, {});
+  // }
 }
 
 export function checkThatUserSignInCredentialsOrThrow(
@@ -129,11 +129,19 @@ export function checkThatCommentsExistOrThrow(comment: any) {
     throw new CustomError(errorCode, commentNotFound, {});
   }
 }
+
 export function checkThatUserIsNotLucieOrThrow(user: User) {
   if (user.username == lucie) {
     throw new CustomError(errorCodeLucie, usernameIsLucie, {});
   }
 }
+
+export function checkThatUserIsNotTheSame(user: User, secondUser: User) {
+  if (user.username == secondUser.username) {
+    throw new CustomError(errorCode, sameUser, {});
+  }
+}
+
 export function checkThatPugExistOrThrow(pug: Pug) {
   if (!pug) {
     throw new CustomError(errorCode, pugDoesntExist, {});
@@ -195,11 +203,19 @@ export function checkThatUserNotFollowed(user: User) {
     throw new CustomError(errorCode, accountNotFollowed, {});
   }
 }
+
 export function checkThatConversationExist(conversations: Conversation) {
   if (!conversations) {
     throw new CustomError(errorCode, conversationDoesntExist, {});
   }
 }
+
+export function checkThatCompetitionExist(competition: Competition) {
+  if (!competition) {
+    throw new CustomError(errorCode, competitionDoesntExist, {});
+  }
+}
+
 export function checkThatConversationsExist(conversations: Conversation[]) {
   if (conversations.length == 0) {
     throw new CustomError(errorCode, conversationsDoesntExist, {});

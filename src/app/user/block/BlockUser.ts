@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import {
   checkThatUserExistsOrThrow,
   checkThatUserIsNotAlreadyBlocked,
-  checkThatUserIsNotAlreadyFollow,
   checkThatUserisntHimself,
 } from "../../../util/validator/checkdata";
 import UserRepository from "../../../repository/UserRepository";
@@ -10,6 +9,7 @@ import { CustomError } from "../../../util/error/CustomError";
 import { decodeToken } from "../../../util/security/tokenManagement";
 import FollowerRepository from "../../../repository/FollowerRepository";
 import { userToUserFactoryResponse } from "../../../response/UserFactoryResponse";
+import { UserFactory } from "../../../models/UserFactory";
 
 export const blockUser = async (req: Request, res: Response) => {
   try {
@@ -49,24 +49,64 @@ const execute = async (userId: string, username: string): Promise<any> => {
     userToUserFactoryResponse(otherUser)
   );
 
-  const follower = await FollowerRepository.deleteUserFromFollower(
-    currentUser,
-    userToUserFactoryResponse(otherUser)
-  );
+  //Deleting current user's following
   const following = await FollowerRepository.deleteUserFromFollowing(
     currentUser,
     userToUserFactoryResponse(otherUser)
   );
+  console.log("Bloquer :", following);
 
-  if (follower) {
+  //Deleting the name of current user in the blocked user's followers
+  const follower = await FollowerRepository.deleteUserFromFollower(
+    otherUser,
+    userToUserFactoryResponse(currentUser)
+  );
+
+  //Deleting blocked user's following current user
+  const userFollowing = await FollowerRepository.deleteUserFromFollowing(
+    otherUser,
+    userToUserFactoryResponse(currentUser)
+  );
+  //Deleting user blocked from current user's followed list
+  const userFollower = await FollowerRepository.deleteUserFromFollower(
+    currentUser,
+    userToUserFactoryResponse(otherUser)
+  );
+
+  if (
+    following.following.find(
+      (elem: UserFactory) => elem.username == otherUser.username
+    )
+  ) {
+    await UserRepository.updateUserFollowing(currentUser, -1);
+  }
+
+  if (
+    follower.followers.find(
+      (elem: UserFactory) => elem.username == otherUser.username
+    )
+  ) {
     await UserRepository.updateUserFollower(otherUser, -1);
   }
-  if (following) {
-    await UserRepository.updateUserFollowing(currentUser, -1);
+
+  if (
+    userFollowing.following.find(
+      (elem: UserFactory) => elem.username == currentUser.username
+    )
+  ) {
+    await UserRepository.updateUserFollowing(otherUser, -1);
+  }
+
+  if (
+    userFollower.followers.find(
+      (elem: UserFactory) => elem.username == currentUser.username
+    )
+  ) {
+    await UserRepository.updateUserFollower(currentUser, -1);
   }
 
   return {
     code: 0,
-    message: "Utilisateur blocké",
+    message: "Utilisateur bloqué",
   };
 };

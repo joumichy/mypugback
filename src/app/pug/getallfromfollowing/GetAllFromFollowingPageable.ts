@@ -40,6 +40,9 @@ export const getAllPugsFromFollowingPagealble = async (
 
 const execute = async (userId: string, startInd: number): Promise<any> => {
   const currentUser = await UserRepository.findById(userId);
+  const blockedList = await FollowerRepository.findAllBlockedFromUser(
+    currentUser.username
+  );
   checkThatUserExistsOrThrow(currentUser);
   const data: UserFactory[] = await FollowerRepository.findAllFollowingFromUser(
     currentUser.username
@@ -52,13 +55,14 @@ const execute = async (userId: string, startInd: number): Promise<any> => {
   );
   const pugsResponse: PugResponse[] = [];
   result.forEach((elem: any) => {
-    pugsResponse.push(
-      pugToResponsePageableSorted(elem.pug, currentUser, {
-        _id: elem.userId,
-        username: elem._id,
-        profilePicture: elem.profilePicture,
-      })
-    );
+    if (!blockedList.find((value) => value.username == elem._id))
+      pugsResponse.push(
+        pugToResponsePageableSorted(elem.pug, currentUser, {
+          _id: elem.userId,
+          username: elem._id,
+          profilePicture: elem.profilePicture,
+        })
+      );
   });
   return pugsResponse;
 };

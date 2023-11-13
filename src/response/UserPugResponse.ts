@@ -48,7 +48,7 @@ export function userPugToResponseNoComment(
         {
           _id: new ObjectId(value.userId),
           username: value._id,
-          profilePicture: value.prorilePicture ?? "",
+          profilePicture: value.profilePicture ?? "",
         },
         value.numberOfComments
       )

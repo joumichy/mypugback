@@ -47,6 +47,5 @@ const execute = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const currentUser = yield UserRepository_1.default.findById(userId);
     (0, checkdata_1.checkThatUserExistsOrThrow)(currentUser);
     const result = yield FollowerRepository_1.default.findAllBlockedFromUser(currentUser.username);
-    console.log(result);
     return (0, UserFactoryResponse_1.usersToUsersFactoryResponse)(result);
 });

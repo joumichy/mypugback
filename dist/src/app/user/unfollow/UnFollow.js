@@ -41,19 +41,37 @@ const unFollowUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.unFollowUser = unFollowUser;
-const execute = (userId, username) => __awaiter(void 0, void 0, void 0, function* () {
+const execute = (userId, username) =>
+  __awaiter(void 0, void 0, void 0, function* () {
     const currentUser = yield UserRepository_1.default.findById(userId);
     const otherUser = yield UserRepository_1.default.findByUsername(username);
     (0, checkdata_1.checkThatUserExistsOrThrow)(currentUser);
     (0, checkdata_1.checkThatUserExistsOrThrow)(otherUser);
-    const userNotFollow = yield FollowerRepository_1.default.findUserInFollwingList(currentUser.username, otherUser.username);
+    const userNotFollow =
+      yield FollowerRepository_1.default.findUserInFollwingList(
+        currentUser.username,
+        otherUser.username
+      );
+    console.log("data :" + userNotFollow);
     (0, checkdata_1.checkThatUserNotFollowed)(userNotFollow);
-    yield FollowerRepository_1.default.deleteUserFromFollowing(currentUser, (0, UserFactoryResponse_1.userToUserFactoryResponse)(otherUser));
-    yield FollowerRepository_1.default.deleteUserFromFollower(otherUser, (0, UserFactoryResponse_1.userToUserFactoryResponse)(currentUser));
-    yield UserRepository_1.default.updateUserFollowing(currentUser, -1);
-    yield UserRepository_1.default.updateUserFollower(otherUser, -1);
+    const resultFollowing =
+      yield FollowerRepository_1.default.deleteUserFromFollowing(
+        currentUser,
+        (0, UserFactoryResponse_1.userToUserFactoryResponse)(otherUser)
+      );
+    if (resultFollowing) {
+      yield UserRepository_1.default.updateUserFollowing(currentUser, -1);
+    }
+    const resultFollower =
+      yield FollowerRepository_1.default.deleteUserFromFollower(
+        otherUser,
+        (0, UserFactoryResponse_1.userToUserFactoryResponse)(currentUser)
+      );
+    if (resultFollower) {
+      yield UserRepository_1.default.updateUserFollower(otherUser, -1);
+    }
     return {
-        code: 0,
-        message: "Nouvel utilisateur unfollow",
+      code: 0,
+      message: "Nouvel utilisateur unfollow",
     };
-});
+  });

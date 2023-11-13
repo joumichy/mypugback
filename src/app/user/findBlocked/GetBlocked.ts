@@ -36,6 +36,5 @@ const execute = async (userId: string): Promise<FollowerResponse[]> => {
   const result = await FollowerRepository.findAllBlockedFromUser(
     currentUser.username
   );
-  console.log(result);
   return usersToUsersFactoryResponse(result);
 };

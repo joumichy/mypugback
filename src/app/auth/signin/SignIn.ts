@@ -41,6 +41,7 @@ const signInUser = async (
   await checkThatUserExistsOrThrow(existingUser);
   await checkThatPasswordsAreEqualsOrThrow(password, existingUser.password);
   await checkThatUserIsNotBanned(existingUser);
+  console.log(existingUser);
 
   return existingUser;
 };

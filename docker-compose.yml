@@ -2,6 +2,7 @@ version: "2"
 services:
   web:
     image: joumichy/mypugrelease:latest
+    container_name: mypug
     build: .
     command: npm run start
     volumes:

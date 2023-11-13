@@ -9,6 +9,9 @@ import UserRepository from "../../../repository/UserRepository";
 import { CustomError } from "../../../util/error/CustomError";
 import { decodeToken } from "../../../util/security/tokenManagement";
 import FollowerRepository from "../../../repository/FollowerRepository";
+import { allUsersNotificationToken } from "../../../util/util";
+import { sendNotificationEvent } from "../../../notification/Notification";
+import { userToUserFactoryResponse } from "../../../response/UserFactoryResponse";
 
 export const followUser = async (req: Request, res: Response) => {
   try {
@@ -52,6 +55,13 @@ export const executeAddFriend = async (
 
   await UserRepository.updateUserFollower(otherUser, 1);
   await UserRepository.updateUserFollowing(currentUser, 1);
+  if (allUsersNotificationToken.has(otherUser.username)) {
+    await sendNotificationEvent(
+      allUsersNotificationToken.get(otherUser.username),
+      userToUserFactoryResponse(currentUser),
+      "follow"
+    );
+  }
 
   return {
     code: 0,

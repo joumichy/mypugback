@@ -13,6 +13,7 @@ import moment from "moment";
 import FollowerRepository from "../../repository/FollowerRepository";
 import Conversation from "../../models/Conversation";
 import { userToUserFactoryResponse } from "../../response/UserFactoryResponse";
+import { messageToResponse } from "../../response/MessageResponse";
 
 export const sendMessage = async (
   currentUsername: string,
@@ -93,5 +94,5 @@ const execute = async (
     conversation,
     receiverUser
   );
-  return message;
+  return messageToResponse(message);
 };

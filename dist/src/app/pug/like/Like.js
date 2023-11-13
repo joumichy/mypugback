@@ -48,7 +48,6 @@ const execute = (userId, pugId, username) => __awaiter(void 0, void 0, void 0, f
     const data = yield PugRepository_1.default.findById(pugId, username);
     const pug = data.pugs[0];
     const test = yield PugRepository_1.default.findUserInPugLike(currentUser.username, pug, username);
-    console.log(test);
     (0, checkdata_1.checkThatUserNotAlreadyLike)(test);
     yield PugRepository_1.default.likeUserPug(currentUser, pug, username);
     return { code: 0, message: "Nouveau pug like", payload: "" };

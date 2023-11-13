@@ -4,3 +4,5 @@ node_modules
 
 uploads
 
+docker-compose.yml
+docker-script.bat

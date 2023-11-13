@@ -21,6 +21,7 @@ const util_1 = require("../../util/util");
 const bson_1 = require("bson");
 const moment_1 = __importDefault(require("moment"));
 const FollowerRepository_1 = __importDefault(require("../../repository/FollowerRepository"));
+const UserFactoryResponse_1 = require("../../response/UserFactoryResponse");
 const sendMessage = (currentUsername, receiverUsername, content, type) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const message = yield execute(currentUsername, receiverUsername, content, type);
@@ -33,7 +34,7 @@ const sendMessage = (currentUsername, receiverUsername, content, type) => __awai
         }
         else {
             console.log(err);
-            return { message: err.message, code: err.code };
+            return { message: err.message, code: 1 };
         }
     }
 });
@@ -48,10 +49,22 @@ const execute = (currentUsername, receiverUsername, content, type) => __awaiter(
     const otherUserBlocked = yield FollowerRepository_1.default.findUserInBlockingList(receiverUser.username, currentUser.username);
     (0, checkdata_1.checkThatUserisNotBlocked)(otherUserBlocked);
     (0, checkdata_1.checkThatUserIsLucie)(receiverUser);
-    const conversation = yield ConversationRepository_1.default.findByMembers([
+    let conversation = yield ConversationRepository_1.default.findByMembers([
         currentUser.username,
         receiverUser.username,
     ]);
+    if (!conversation) {
+        const newConversation = {
+            members: [currentUser.username, receiverUser.username],
+            chat: [],
+            seen: [currentUser.username],
+            membersInfos: [
+                (0, UserFactoryResponse_1.userToUserFactoryResponse)(currentUser),
+                (0, UserFactoryResponse_1.userToUserFactoryResponse)(receiverUser),
+            ],
+        };
+        conversation = yield ConversationRepository_1.default.insert(newConversation);
+    }
     const time = (0, moment_1.default)().unix().toString();
     const message = {
         content: content,

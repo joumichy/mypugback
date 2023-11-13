@@ -93,7 +93,7 @@ export default class FollowerRepository {
     return await call.findOneAndUpdate(
       { username: user.username },
       {
-        $push: { followers: follower },
+        $push: { followers: { username: follower.username } },
       }
     );
   }
@@ -103,11 +103,13 @@ export default class FollowerRepository {
     follower: UserFactory
   ): Promise<any> {
     const call = db.get(collectionName);
-
     return await call.findOneAndUpdate(
       { username: user.username },
       {
-        $pull: { following: follower },
+        $pull: { following: { username: follower.username } },
+      },
+      {
+        projection: { following: 1 },
       }
     );
   }
@@ -132,6 +134,9 @@ export default class FollowerRepository {
       { username: user.username },
       {
         $pull: { followers: follower },
+      },
+      {
+        projection: { followers: 1 },
       }
     );
   }
@@ -224,8 +229,13 @@ export default class FollowerRepository {
         "blocked.username": user,
       },
       {
-        projection: { following: { $elemMatch: { username: user } } },
+        projection: { blocked: { $elemMatch: { username: user } } },
       }
     );
+  }
+
+  static async deleteUser(user: User): Promise<any> {
+    const call = db.get(collectionName);
+    return await call.remove({ username: user.username });
   }
 }

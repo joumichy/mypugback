@@ -1,6 +1,4 @@
 import { Router } from "express";
-import { signalUser } from "../app/user/signal/SignalUser";
-import userRouter from "./userRoutes";
 import { getAllPugsSignal } from "../app/signal/getpugs/GetPugs";
 import { getPugSignal } from "../app/signal/getPug/GetPug";
 import { getPugsSignalByUsername } from "../app/signal/getPug/GetPugsFromUser";

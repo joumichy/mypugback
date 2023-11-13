@@ -33,6 +33,9 @@ export const getAllPugsFromFollowing = async (req: Request, res: Response) => {
 
 const execute = async (userId: string): Promise<any> => {
   const currentUser = await UserRepository.findById(userId);
+  const blockedList = await FollowerRepository.findAllBlockedFromUser(
+    currentUser.username
+  );
   checkThatUserExistsOrThrow(currentUser);
   const data: UserFactory[] = await FollowerRepository.findAllFollowingFromUser(
     currentUser.username
@@ -43,7 +46,7 @@ const execute = async (userId: string): Promise<any> => {
 
   const pugsResponse: PugResponse[] = [];
   result.forEach((value: any) => {
-    if (value.pugs) {
+    if (value.pugs && !blockedList.includes(value.username)) {
       value.pugs.forEach((elem: Pug) => {
         pugsResponse.push(
           pugToResponse(elem, currentUser.username, value.username)
