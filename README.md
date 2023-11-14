@@ -14,5 +14,6 @@ JWTSECRET has to be generated for encryption.
 Architecture is monolith, each files in folder are made for a specific API call in src/app/:
 - src/models folder contain every entity model for mongodb
 - src/repository folder contain every query for mongodb with monk framework
+- src/response folder contain every converted object or model returned for json response
 
 
