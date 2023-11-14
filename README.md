@@ -8,7 +8,8 @@ Server build with express framework, need an .env file with :
 - JWTSECRET
 - DBURL
 - STRIPE_SECRET_KEY
-JWT has to be generated for encryption.
+  
+JWTSECRET has to be generated for encryption.
 
 Architecture is monolith, each files in folder are made for a specific API call in src/app/:
 - src/models folder contain every entity model for mongodb
